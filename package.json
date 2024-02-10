@@ -1,0 +1,16 @@
+{
+  "name": "test-app",
+  "version": "0.0.1",
+  "main": "./build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "electron": "28.2.1",
+    "typescript": "^5.3.3"
+  }
+}
