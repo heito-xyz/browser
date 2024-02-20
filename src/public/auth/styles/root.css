@@ -1,0 +1,32 @@
+main {
+    display: flex;
+    background-color: bisque;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #000;
+    background-color: transparent;
+    -webkit-app-region: no-drag;
+    box-sizing: border-box;
+}
+
+button {
+    margin-top: 12px;
+    cursor: pointer;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: blueviolet;
+    outline: none;
+    -webkit-app-region: no-drag;
+}
+button:active {
+    transform: scale(.95);
+}

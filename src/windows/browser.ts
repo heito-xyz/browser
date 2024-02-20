@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import path from 'path';
 
 
 export class WindowBrowser {
@@ -9,6 +10,32 @@ export class WindowBrowser {
         this.window = this.init();
 
         this.initEvents();
+    }
+
+
+    private initWorker() {
+        // const worker = new SharedWorkerInfo(path.join(__dirname, '../workers/config.js'), {
+        //     name: 'config',
+        // });
+        // worker.on('message', event => {
+        //     console.log('message', event);
+        // });
+
+        // worker.on('error', event => {
+        //     console.log('error', event);
+        // });
+
+        // worker.on('messageerror', event => {
+        //     console.log('messageerror', event);
+        // });
+
+        // worker.on('exit', event => {
+        //     console.log('exit', event);
+        // });
+
+        // worker.on('online', () => {
+        //     console.log('online');
+        // });
     }
 
 
@@ -54,7 +81,15 @@ export class WindowBrowser {
             }
         });
 
-        win.loadFile('./src/public/index.html');
+        win.loadFile('./src/public/browser/index.html');
+        
+        win.webContents
+        .executeJavaScript('({...localStorage});', true)
+        .then(localStorage => {
+            console.log(localStorage);
+        });
+
+        this.initWorker();
 
         return win;
     }
