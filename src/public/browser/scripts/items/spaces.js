@@ -1,10 +1,30 @@
-import { $ipc } from '../ipc.js';
+/**
+ * @typedef ItemInItems
+ * 
+ * @property { 'folder' | 'tab' } type
+ * @property { String } id
+*/
 
-import { $tabs } from './tabs.js';
-import { $folders } from './folders.js';
+/**
+ * @typedef ItemSpace
+ * 
+ * @param { String } id
+ * @param { String } name
+ * @param { String } icon
+ * @param { String } profileId
+ * @param { String } background
+ * @param { Array<ItemInItems> } items
+ * @param { Number } createdAt
+*/
 
 // * Libs
+import { $ipc } from '../ipc.js';
 import { Sortable } from '../../../global/libs/sortable.js';
+
+// * Items
+import { $profiles } from './profiles.js';
+import { $folders } from './folders.js';
+import { $tabs } from './tabs.js';
 
 // * Classes
 import { Item, getDataParent, getItem } from '../classes/item.js';
@@ -12,6 +32,8 @@ import { Item, getDataParent, getItem } from '../classes/item.js';
 
 const elSpaces = document.querySelector('main .spaces');
 const menuSpaces = document.querySelector('.b.menu .spaces');
+
+
 
 
 class Space extends Item {
@@ -22,14 +44,7 @@ class Space extends Item {
      * @param { String } name
      * @param { String } profileId
      * 
-     * @param { Object } space
-     * @param { String } space.id
-     * @param { String } space.name
-     * @param { String } space.icon
-     * @param { String } space.profileId
-     * @param { String } space.background
-     * @param { Array.<{ type: 'folder' | 'tab', id: string }> } space.items
-     * @param { Number } space.createdAt
+     * @param { ItemSpace } space
     */
     constructor(space) {
         super(space, 'space', {
@@ -40,9 +55,9 @@ class Space extends Item {
                 inline: '.list.wait'
             }
         });
-        console.log(this);
         
         this.icon = space.icon;
+        /** @private */
         this.profileId = space.profileId;
         this.background = space.background;
         this.items = space.items;
@@ -55,6 +70,11 @@ class Space extends Item {
     }
 
 
+    get profile() {
+        return $profiles.list.get(this.profileId);
+    }
+
+
     /**
      * @param { String } icon
     */
@@ -63,10 +83,10 @@ class Space extends Item {
     }
     
     /**
-     * @param { String } name
+     * @param { String } id
     */
-    setProfile(name) {
-        this.profileName = name;
+    setProfile(id) {
+        this.profileId = id;
     }
 
 
@@ -124,8 +144,9 @@ class Space extends Item {
         space.id = `space:${this.id}`;
         space.innerHTML = `
         <div class="header">
-            <i class="${this.icon}"></i>
-            <span class="item-name">${this.name}</span>
+            <i class="ib-${this.icon}"></i>
+            <div class="item-name" contenteditable="true">${this.name}</div>
+            <div class="profile">${this.profile.name}</div>
         </div>
         <div class="content">
             <div class="list main"></div>
@@ -136,6 +157,21 @@ class Space extends Item {
             <div class="list wait"></div>
         </div>
         `;
+
+
+        // ? Header
+        const spaceName = space.querySelector('.header .item-name');
+
+        let timerName;
+
+        spaceName.addEventListener('input', () => {
+            clearTimeout(timerName);
+
+            timerName = setTimeout(() => {
+                this.setName(spaceName.textContent);
+            }, 700);
+        });
+
 
         const mainContent = space.querySelector('.list.main');
         const waitContent = space.querySelector('.list.wait');
@@ -202,6 +238,11 @@ class Spaces {
     list = new Map();
 
 
+    constructor() {
+        this.init();
+    }
+
+
     /**
      * @return { Space }
     */
@@ -242,34 +283,43 @@ class Spaces {
 
 
     /**
-     * @param { Object } space
-     * @param { String } space.id
-     * @param { String } space.name
-     * @param { String } space.icon
-     * @param { String } space.profileId
-     * @param { Array.<{ type: 'folder' | 'tab', id: string }> } space.items
-     * @param { Number } space.createdAt
+     * @param { ItemSpace } space
      */
     insert(space) {
         const newSpace = new Space(space);
 
         this.list.set(space.id, newSpace);
+
+        return newSpace;
     }
 
     /**
-     * @param { Array.<{
-     * id: string;
-     * name: string;
-     * icon: string;
-     * profileId: string;
-     * items: Array<{ type: 'folder' | 'tab', id: string }>;
-     * createdAt: number;
-     * }> } spaces
+     * @param { Array<ItemSpace> } spaces
     */
     insertAll(spaces) {
         for (const space of spaces) {
             this.insert(space);
         }
+    }
+
+
+    /**
+     * @private
+    */
+    init() {
+        elSpaces.addEventListener('wheel', event => {
+            if (!event.ctrlKey) return;
+        
+            const list = [...this.list.keys()];
+            
+            const currentIndex = list.indexOf(this.current.id);
+        
+            const isDown = event.deltaY >= 0;
+        
+            if (currentIndex === 0 && !isDown) return;
+        
+            this.set(list[isDown ? currentIndex + 1 : currentIndex - 1]);
+        })
     }
 }
 

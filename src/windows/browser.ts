@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, Menu, screen } from 'electron';
 import path from 'path';
 
 
@@ -54,6 +54,28 @@ export class WindowBrowser {
             }
         });
 
+        this.window.webContents.ipc.on('window:contextmenu', event => {
+            // const menu = Menu.buildFromTemplate([
+            //     {
+            //         label: 'Menu Item 1',
+            //         click: () => {
+
+            //         }
+            //     },
+            //     { type: 'separator' },
+            //     {
+            //         label: 'Menu Item 2',
+            //         type: 'checkbox',
+            //         checked: true
+            //     }
+            // ]);
+
+            // menu.popup({ window: this.window });
+        
+            // const mousePos = screen.getCursorScreenPoint();
+
+            // $contextWindow.set(mousePos.x, mousePos.y);
+        });
 
         this.window.on('maximize', () => {
             this.window.webContents.send('window:maximize:is', true);

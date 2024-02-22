@@ -20,7 +20,14 @@ class IPC {
     }
 
 
-    emit = ipcRenderer.send;
+    /**
+     * @param { String } channel
+     * @param { Array<any> } args
+    */
+    emit(channel, ...args) {
+        return ipcRenderer.send(channel, ...args);
+    }
+
 
     /**
      * @param { String } channel

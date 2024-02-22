@@ -257,8 +257,6 @@ class Item {
         
         this.items.push({ type, id });
 
-        console.log(item);
-
         const selector = options.container || typeof this.selector === 'string' ?
             this.selector :
             (this.selector[item.parent.inline && this.selector['inline'] ? 'inline' : options.mode]);

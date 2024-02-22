@@ -1,0 +1,57 @@
+.context-menu {
+    padding: 8px;
+    max-width: 196px;
+    min-width: 128px;
+    position: fixed;
+    border-radius: 15px;
+    /* border: 1px solid #2d2d2d; */
+    background-color: #00000055;
+    transition: all .2s;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+    -webkit-app-region: no-drag;
+    user-select: none;
+
+    li {
+        box-sizing: border-box;
+    }
+
+    li.button {
+        cursor: pointer;
+        display: flex;
+        padding: 8px;
+        border-radius: 10px;
+        align-items: center;
+        transition: .2s;
+
+        &:hover {
+            background-color: #00000055;
+        }
+    
+        i {
+            margin-right: 8px;
+        }
+    
+        & > div {
+            max-width: 100%;
+            min-width: 0;
+            
+            div {
+                font-size: 12px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+
+                &:nth-child(2) {
+                    color: #b8b8b8;
+                    font-size: 10px;
+                }
+            }
+        }
+    }
+
+    li.separator {
+        margin: 4px 8px;
+        border-top: 1px solid #00000055;
+    }
+}

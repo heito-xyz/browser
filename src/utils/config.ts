@@ -22,6 +22,10 @@ class Config {
 
 
     private initEvents() {
+        ipcMain.on('test', (event, a) => {
+            console.log(a);
+            
+        });
         // * Load
         ipcMain.on('config:items', (event, { type, items = 'all' }: { type: TypeItem, items: 'all' | 'archive' | 'delete' }) => {
             if (!type || !this.nameItems.includes(type)) return;

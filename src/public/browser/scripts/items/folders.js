@@ -183,14 +183,32 @@ export class Folder extends Item {
 
         folder.id = `folder:${this.id}`;
         folder.className = 'folder';
-        folder.innerHTML += `<div class="header"><i class="ib-settings"></i><span>${this.name}</span></div>`;
-        folder.innerHTML += '<ul></ul>';
+        folder.innerHTML = `
+        <div class="header">
+            <i class="ib-folder"></i>
+            <div class="item-name" contenteditable="true">${this.name}</div>
+        </div>
+        <ul></ul>
+        `;
 
         const header = folder.querySelector('.header');
+
+        const folderName = header.querySelector('.item-name');
+
+        let timerName;
+
+        folderName.addEventListener('input', () => {
+            clearTimeout(timerName);
+
+            timerName = setTimeout(() => {
+                this.setName(folderName.textContent);
+            }, 700);
+        });
+
         const listTabs = folder.querySelector('ul');
     
         header.onclick = () => {
-            listTabs.classList.toggle('active');
+            folder.classList.toggle('active');
         }
 
 

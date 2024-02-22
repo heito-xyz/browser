@@ -1,23 +1,25 @@
+/**
+ * @typedef ItemProfile
+ * 
+ * @property { String } id
+ * @property { String } name
+ * @property { String } icon
+ * @property { Number } createdAt
+*/
+
 class Profile {
     /**
-     * @param { String } name
-     * 
-     * @param { Object } profile 
-     * @param { String } profile.id
-     * @param { String } profile.name
-     * @param { String } profile.icon
-     * @param { Number } profile.createdAt
+     * @param { ItemProfile } profile
     */
-    constructor(name, profile = null) {
+    constructor(profile) {
         /** @readonly */
-        this.name = name;
-
-        if (profile) {
-            this.id = profile.id;
-            this.name = profile.name;
-            this.icon = profile.icon;
-            this.createdAt = profile.createdAt;
-        }
+        this.id = profile.id;
+        /** @readonly */
+        this.name = profile.name;
+        /** @readonly */
+        this.icon = profile.icon;
+        /** @readonly */
+        this.createdAt = profile.createdAt;
 
 
         /** @readonly */
@@ -34,35 +36,33 @@ class Profiles {
 
 
     constructor() {
-        this.create('global');
+        this.insert({
+            id: 'global',
+            name: 'global',
+            icon: 'stars',
+            createdAt: 0
+        });
     }
-    
-    
+
+
     /**
-     * @param { String } name
+     * @param { ItemProfile } profile
     */
-    create(name) {
-        const profile = new Profile(name);
+    insert(profile) {
+        const newProfile = new Profile(profile);
 
-        this.list.set(profile.name, profile);
+        this.list.set(profile.id, newProfile);
 
-        return profile;
+        return newProfile;
     }
 
 
     /**
-     * @param { Array.<{
-     * id: string;
-     * name: string;
-     * icon: string;
-     * createdAt: number;
-     * }> } profiles
+     * @param { Array<ItemProfile> } profiles
     */
     insertAll(profiles) {
         for (const profile of profiles) {
-            const newProfile = new Profile(profile.name, profile);
-
-            this.list.set(profile.id, newProfile);
+            this.insert(profile);
         }
     }
 }

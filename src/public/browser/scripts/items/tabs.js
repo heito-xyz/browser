@@ -1,3 +1,15 @@
+/**
+ * @typedef ItemTab
+ * 
+ * @property { String } id
+ * @property { String } name
+ * @property { String } url
+ * @property { String } parent
+ * @property { Number } updatedAt
+ * @property { Number } createdAt
+*/
+
+
 import { $spaces } from './spaces.js';
 import { $titlebar } from '../ui/titlebar.js';
 import { $search } from '../ui/search.js';
@@ -5,6 +17,7 @@ import { $folders } from './folders.js';
 import { $ipc } from '../ipc.js';
 import { $config } from '../config.js';
 import { Item, getDataParent } from '../classes/item.js';
+import { $contextMenu } from '../../../global/scripts/contextMenu.js';
 
 
 class View {
@@ -98,7 +111,7 @@ class View {
         webview.src = this.tab.url;
         webview.setAttribute('allowpopups', 'true');
         webview.setAttribute('autosize', 'true');
-        webview.setAttribute('partition', `persist:profile:${this.tab.space.profileId}`);
+        webview.setAttribute('partition', `persist:profile:${this.tab.space.profile.id}`);
 
         webview.addEventListener('DOMNodeInserted', () => {
             setTimeout(() => {
@@ -114,12 +127,7 @@ class View {
 
 export class Tab extends Item {
     /**
-     * @param { Object } tab
-     * @param { String } tab.id
-     * @param { String } tab.name
-     * @param { String } tab.url
-     * @param { String } tab.parent
-     * @param { Number } tab.createdAt
+     * @param { ItemTab } tab
     */
     constructor(tab) {
         super(tab, 'tab', {
@@ -184,6 +192,14 @@ export class Tab extends Item {
         this.view.remove();
     }
 
+    close() {
+        if (!this.view) return;
+
+        this.view.remove();
+
+        this.view = null;
+    }
+
 
     /**
      * @private
@@ -194,22 +210,43 @@ export class Tab extends Item {
         tab.id = `tab:${this.id}`;
         tab.draggable = true;
         tab.className = 'tab drag-item';
-        tab.innerHTML = `<img src="${this.image}" alt="Tab Image"><span class="item-name">${this.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
-        tab.innerHTML += `<ul><i class="ib-options"></i><i class="ib-close"></i></ul>`;
+        tab.innerHTML = `<img src="${this.image}" alt="Tab Image"><div class="item-name">${this.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        tab.innerHTML += `<ul><i class="ib-close"></i></ul>`;
+        // <i class="ib-options"></i>
 
-        const [btnOptions, btnClose] = tab.querySelectorAll('ul i');
+        const [btnClose] = tab.querySelectorAll('ul i');
     
         tab.onclick = () => {
             $tabs.setCurrentTab(this.id);
         }
 
+        tab.oncontextmenu = () => {
+            const items = [
+                {
+                    type: 'button',
+                    label: this.name
+                },
+            ];
 
-        tab.addEventListener('dragstart', event => {
-            event.dataTransfer.setData('tab', this.id);
-        });
+            if (this.view !== null) {
+                items.push({
+                    type: 'separator'
+                }, {
+                    type: 'button',
+                    label: `Clear view`,
+                    click: () => {
+                        $tabs.clearTab(this.id);
+                    }
+                });
+            }
 
-
-        btnOptions.onclick = () => {}
+            $contextMenu.set(items, {
+                orientation: 'horizontal',
+                el: tab,
+                fixed: true,
+                position: ['top', 'right']
+            });
+        }
 
         btnClose.addEventListener('click', event => {
             event.stopPropagation();
@@ -294,14 +331,28 @@ class Tabs {
         $search.updateUrl(tab.url.hostname);
     }
 
+    /**
+     * @param { Number } tabId
+    */
+    clearTab(tabId) {
+        const tab = this.list.get(tabId);
+
+        if (!tab) return false;
+
+        tab.close();
+
+        if (tab.id === this.currentId) {
+            this.current.node.classList.remove('active');
+
+            this.currentId = null;
+        }
+
+        return true;
+    }
+
 
     /**
-     * @param { Object } tab
-     * @param { String } tab.id
-     * @param { String } tab.name 
-     * @param { String } tab.url
-     * @param { String } tab.parent
-     * @param { Number } tab.createdAt
+     * @param { ItemTab } tab
     */
     insert(tab) {
         const newTab = new Tab(tab);
@@ -314,14 +365,7 @@ class Tabs {
     }
 
     /**
-     * @param { Array.<{
-     * id: string;
-     * name: string;
-     * url: string;
-     * parent: string;
-     * updatedAt: number;
-     * createdAt: number;
-     * }> } tabs
+     * @param { Array<ItemTab> } tabs
     */
     insertAll(tabs) {
         const filterTabs = tabs.sort((a, b) => {
@@ -332,9 +376,7 @@ class Tabs {
         });
 
         for (const tab of filterTabs) {
-            let a = this.insert(tab);
-            
-            console.log(a.name, a.parent.index);
+            this.insert(tab);
         }
     }
 }
