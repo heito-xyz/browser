@@ -1,37 +1,39 @@
-import { $spaces } from './spaces.js';
-import { $tabs, Tab } from './tabs.js';
+/**
+ * @typedef ItemFolder
+ * 
+ * @property { String } id
+ * @property { String } name
+ * @property { 'image' | 'icon' } icon.type
+ * @property { String } icon.value
+ * @property { String } parent
+ * @property { Number } folder.updatedAt
+ * @property { Number } folder.createdAt
+*/
+
 
 // * Libs
 import { Sortable } from '../../../global/libs/sortable.js';
 import { $config } from '../config.js';
+import { $contextMenu } from '../../../global/scripts/contextMenu.js';
+import { $ipc } from '../ipc.js';
+
+// * Items
+import { $spaces } from './spaces.js';
+import { $tabs, Tab } from './tabs.js';
 
 // * Classes
 import { Item, getDataParent } from '../classes/item.js';
 
+// * Components
+import { selectIconComponent } from '../components/selectIcon.js';
+
 
 export class Folder extends Item {
-    /**
-     * @readonly
-     * @type { Number }
-    */
-    id = $folders.list.size;
-
-    /**
-     * @private
-    */
-    items = [];
-
     /**
      * @param { String } name
      * @param { Number } spaceId
      * 
-     * @param { Object } folder
-     * @param { String } folder.id
-     * @param { String } folder.name
-     * @param { String } folder.icon
-     * @param { String } folder.parent
-     * @param { Array.<{ type: 'folder' | 'tab', id: string }> } folder.items
-     * @param { Number } folder.createdAt
+     * @param { ItemFolder } folder
     */
     constructor(folder) {
         super(folder, 'folder', {
@@ -42,7 +44,10 @@ export class Folder extends Item {
         /** @readonly */
         this.id = folder.id;
         this.name = folder.name;
-        this.icon = folder.icon;
+        this.icon = folder.icon || {
+            type: 'icon',
+            value: 'folder-solid'
+        };
         /** @private */
         this._parent = folder.parent;
         this.items = folder.items;
@@ -54,130 +59,66 @@ export class Folder extends Item {
          * @type { HTMLElement }
         */
         this.node = this.initNode();
+
+        this.setIcon(this.icon.type, this.icon.value);
     }
 
 
-    // get parent() {
-    //     const [type = '', id = '', index = ''] = this._parent.split(':');
+    // * Context Menus
+    /** @private */
+    setFolderContextMenu() {
+        $contextMenu.set([
+            {
+                type: 'button',
+                label: 'Change icon',
+                click: () => {
+                    const icon = this.node.querySelector('.item-icon');
 
-    //     return {
-    //         type,
-    //         id,
-    //         index: Number(index) 
-    //     };
-    // }
+                    setTimeout(() => {
+                        $contextMenu.set([
+                            {
+                                type: 'component',
+                                component: selectIconComponent(item => {
+                                    this.setIcon(item.type, item.value);
 
-    // get space() {
-    //     const { type, id } = this.parent;
+                                    $contextMenu.close();
+                                })
+                            }
+                        ], {
+                            el: icon,
+                            fixed: true,
+                            position: ['bottom', 'left']
+                        });
+                    }, 10)
+                }
+            },
+            {
+                type: 'button',
+                label: 'Rename',
+                click: () => {
+                    const name = this.node.querySelector('.item-name');
+                
+                    name.setAttribute('contenteditable', true);
+                    name.focus();
 
-    //     if (type === 'folder') {
-    //         const spaceId = this.checkSpaceIdInFolder(id);
+                    name.addEventListener('blur', () => {
+                        name.setAttribute('contenteditable', false);
 
-    //         if (!spaceId) return null;
-
-    //         return $spaces.list.get(spaceId);
-    //     }
-
-    //     return $spaces.list.get(id);
-    // }
+                        if (name.textContent !== this.name) this.setName(name.textContent);
+                    }, true);
+                }
+            }
+        ], {
+            el: this.node.querySelector('.header'),
+            fixed: true,
+            position: ['bottom', 'right']
+        });
+    }
 
 
     /**
      * @private
-     * @param { String } folderId
-     * @return { String | null }
     */
-    // checkSpaceIdInFolder(folderId) {
-    //     const folder = $folders.list.get(folderId);
-
-    //     const { type, id } = folder.parent;
-
-    //     if (type === 'space') return id;
-    //     else if (type === 'folder') {
-    //         return this.checkSpaceIdInFolder(id);
-    //     }
-    // }
-
-
-    /**
-     * @param { 'space' | 'folder' } type
-     * @param { String } id
-     * @param { Array<string> } args
-    */
-    // setParent(type, id, ...args) {
-    //     this._parent = `${type}:${id}:${args.join(':')}`;
-
-    //     $config.updateItem('folder', this.id, {
-    //         parent: this._parent
-    //     });
-    // }
-
-
-    /**
-     * @param { 'folder' | 'tab' } type
-     * @param { Number } id
-     * @param { Number | null } index
-    */
-    // addItem(type, id, index) {
-    //     const types = {
-    //         folder: $folders.list,
-    //         tab: $tabs.list
-    //     }
-
-    //     const item = types[type].get(id);
-
-    //     if (!item) return false;
-
-    //     this.items.push({ type, id });
-
-    //     const list = this.node.querySelector('ul');
-
-    //     if (index !== null) {
-    //         list.insertBefore(item.node, list.childNodes[index]);
-    //     } else {
-    //         list.appendChild(item.node);
-    //     }
-
-    //     return true;
-    // }
-
-
-    // includeToParent() {
-    //     const { type, id } = this.parent;
-
-    //     const types = {
-    //         space: $spaces.list,
-    //         folder: $folders.list
-    //     };
-
-    //     const parent = types[type].get(id);
-
-    //     if (!parent) return;
-
-    //     parent.addItem('folder', this.id);
-    // }
-
-
-    /**
-     * @private
-     * @param { 'folder' | 'tab' } type
-     * @param { String } id
-     * @param { Number } newIndex
-    */
-    setParentItem(type, id, newIndex) {
-        const types = {
-            folder: $folders.list,
-            tab: $tabs.list
-        };
-
-        const item = types[type].get(id);
-
-        if (!item) return;
-
-        item.setParent('folder', this.id, String(newIndex));
-    }
-
-
     initNode() {
         const folder = document.createElement('div');
 
@@ -185,8 +126,8 @@ export class Folder extends Item {
         folder.className = 'folder';
         folder.innerHTML = `
         <div class="header">
-            <i class="ib-folder"></i>
-            <div class="item-name" contenteditable="true">${this.name}</div>
+            <div class="item-icon"></div>
+            <div class="item-name">${this.name}</div>
         </div>
         <ul></ul>
         `;
@@ -195,21 +136,16 @@ export class Folder extends Item {
 
         const folderName = header.querySelector('.item-name');
 
-        let timerName;
+        // ? Header Events
+        header.addEventListener('click', () => {
+            folder.classList.toggle('active');
+        });
 
-        folderName.addEventListener('input', () => {
-            clearTimeout(timerName);
-
-            timerName = setTimeout(() => {
-                this.setName(folderName.textContent);
-            }, 700);
+        header.addEventListener('contextmenu', () => {
+            this.setFolderContextMenu();
         });
 
         const listTabs = folder.querySelector('ul');
-    
-        header.onclick = () => {
-            folder.classList.toggle('active');
-        }
 
 
         /** @type { Sortable } */
@@ -247,13 +183,7 @@ class Folders {
 
 
     /**
-     * @param { Object } folder
-     * @param { String } folder.id
-     * @param { String } folder.name
-     * @param { String } folder.icon
-     * @param { String } folder.parent
-     * @param { Number } folder.updatedAt
-     * @param { Number } folder.createdAt
+     * @param { ItemFolder } folder
      * 
      * @param { Boolean } [isInsertToParent=false]
     */
@@ -268,14 +198,7 @@ class Folders {
     }
 
     /**
-     * @param { Array.<{
-     * id: string;
-     * name: string;
-     * icon: string;
-     * parent: string;
-     * updatedAt: number;
-     * createdAt: number;
-     * }> } folders 
+     * @param { Array<ItemFolder> } folders 
     */
     insertAll(folders) {
         for (const folder of folders) {

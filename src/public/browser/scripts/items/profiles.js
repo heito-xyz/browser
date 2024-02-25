@@ -3,7 +3,8 @@
  * 
  * @property { String } id
  * @property { String } name
- * @property { String } icon
+ * @property { 'image' | 'icon' } icon.type
+ * @property { String } icon.value
  * @property { Number } createdAt
 */
 
@@ -42,6 +43,16 @@ class Profiles {
             icon: 'stars',
             createdAt: 0
         });
+    }
+
+
+    /**
+     * @param { String } id
+    */
+    remove(id) {
+        if (!this.list.has(id)) return false;
+
+        this.list.delete(id);
     }
 
 

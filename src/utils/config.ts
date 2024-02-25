@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 
 // * Utils
 import { $accounts } from './accounts';
@@ -111,6 +111,18 @@ class Config {
             if (!item) return;
 
             event.reply('config:items:remove', item);
+        });
+
+        // * Dialog
+        ipcMain.on('dialog:files', (event) => {
+            dialog.showOpenDialog({
+                properties: ['openFile'],
+                filters: [
+                    { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif'] }
+                ]
+            }).then(({ filePaths }) => {
+                event.reply('dialog:files', filePaths);
+            });
         });
     }
 }

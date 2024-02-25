@@ -8,37 +8,42 @@
 /**
  * @typedef ItemSpace
  * 
- * @param { String } id
- * @param { String } name
- * @param { String } icon
- * @param { String } profileId
- * @param { String } background
- * @param { Array<ItemInItems> } items
- * @param { Number } createdAt
+ * @property { String } id
+ * @property { String } name
+ * @property { 'image' | 'icon' } icon.type
+ * @property { String } icon.value
+ * @property { String } profileId
+ * @property { String } background
+ * @property { Array<ItemInItems> } items
+ * @property { Number } createdAt
 */
 
 // * Libs
 import { $ipc } from '../ipc.js';
 import { Sortable } from '../../../global/libs/sortable.js';
+import { $contextMenu } from '../../../global/scripts/contextMenu.js';
 
 // * Items
 import { $profiles } from './profiles.js';
 import { $folders } from './folders.js';
 import { $tabs } from './tabs.js';
 
+// * UI
+import { $sidebar } from '../ui/sidebar.js';
+import { $search } from '../ui/search.js';
+
 // * Classes
 import { Item, getDataParent, getItem } from '../classes/item.js';
 
+// * Components
+import { selectIconComponent } from '../components/selectIcon.js';
 
-const elSpaces = document.querySelector('main .spaces');
-const menuSpaces = document.querySelector('.b.menu .spaces');
 
+const menuSpaces = document.querySelector('.b.menu .spaces ul');
 
 
 
 class Space extends Item {
-    list = [];
-
     /**
      * @param { String } icon
      * @param { String } name
@@ -67,19 +72,13 @@ class Space extends Item {
          * @type { HTMLElement }
         */
         this.node = this.initNode();
+
+        this.setIcon(this.icon.type, this.icon.value);
     }
 
 
     get profile() {
         return $profiles.list.get(this.profileId);
-    }
-
-
-    /**
-     * @param { String } icon
-    */
-    setIcon(icon) {
-        this.icon = icon;
     }
     
     /**
@@ -113,6 +112,48 @@ class Space extends Item {
     }
 
 
+    // * Context Menus
+    /** @private */
+    setSpaceContextMenu() {
+        $contextMenu.set([
+            {
+                type: 'button',
+                label: 'Change icon',
+                click: () => {
+                    const icon = this.node.querySelector('.item-icon');
+
+                    setTimeout(() => {
+                        $contextMenu.set([
+                            {
+                                type: 'component',
+                                component: selectIconComponent(item => {
+                                    this.setIcon(item.type, item.value);
+
+                                    $contextMenu.close();
+                                })
+                            }
+                        ], {
+                            el: icon,
+                            fixed: true,
+                            position: ['bottom', 'left']
+                        });
+                    }, 10);
+                }
+            },
+            {
+                type: 'button',
+                label: 'Rename',
+                click: () => {
+                    this.node.querySelector('.item-name').focus();
+                }
+            }
+        ], {
+            el: this.node.querySelector('.header'),
+            fixed: true,
+            position: ['bottom', 'right']
+        });
+    }
+
     /**
      * @private
     */
@@ -144,9 +185,9 @@ class Space extends Item {
         space.id = `space:${this.id}`;
         space.innerHTML = `
         <div class="header">
-            <i class="ib-${this.icon}"></i>
+            <div class="item-icon"></div>
             <div class="item-name" contenteditable="true">${this.name}</div>
-            <div class="profile">${this.profile.name}</div>
+            <i class="ib-edit-2"></i>
         </div>
         <div class="content">
             <div class="list main"></div>
@@ -159,8 +200,16 @@ class Space extends Item {
         `;
 
 
+        // <i class="ib-${this.icon}" style="display: ${this.icon ?};"></i>
+
         // ? Header
-        const spaceName = space.querySelector('.header .item-name');
+        const header = space.querySelector('.header');
+
+        header.addEventListener('contextmenu', () => {
+            this.setSpaceContextMenu();
+        });
+
+        const [spaceIcon, spaceName, editButton] = header.querySelectorAll('.item-icon, .item-name, i:nth-child(3)');
 
         let timerName;
 
@@ -170,6 +219,10 @@ class Space extends Item {
             timerName = setTimeout(() => {
                 this.setName(spaceName.textContent);
             }, 700);
+        });
+
+        editButton.addEventListener('click', () => {
+            this.setSpaceContextMenu();
         });
 
 
@@ -212,10 +265,11 @@ class Space extends Item {
         const newTab = space.querySelector('.new-tab');
 
         newTab.onclick = () => {
-            this.newTab('https://ya.ru');
+            // this.newTab('https://ya.ru');
+            $search.show();
         }
 
-        elSpaces.appendChild(space);
+        $sidebar.elSpaces.appendChild(space);
 
         this.initNodeButton();
 
@@ -255,7 +309,7 @@ class Spaces {
      * @param { String } id 
      */
     set(id) {
-        if (!this.list.has(id)) return;
+        if (this.currentId === id || !this.list.has(id)) return;
         
         const currentSpace = this.list.get(id);
 
@@ -263,7 +317,7 @@ class Spaces {
 
         let index = 0;
 
-        elSpaces.querySelectorAll('.space').forEach((space, idx) => {
+        $sidebar.elSpaces.querySelectorAll('.space').forEach((space, idx) => {
             space.classList.remove('active');
 
             if (currentSpace.node === space) {
@@ -271,14 +325,23 @@ class Spaces {
             }
         });
 
-        menuSpaces.querySelectorAll('li').forEach(btn => {
-            btn.classList.remove('active');
-        });
+        menuSpaces.querySelector('li.active')?.classList.remove('active');
 
         currentSpace.node.classList.add('active');
         currentSpace.nodeButton.classList.add('active');
 
-        elSpaces.style['transform'] = `translateX(calc(-100% * ${index}))`;
+        $sidebar.elSpaces.style['transform'] = `translateX(calc(-100% * ${index}))`;
+        
+        menuSpaces.scrollTo({
+            left: (16 * index) - (menuSpaces.clientWidth / 2 - 8),
+            behavior: 'smooth'
+        });
+
+        setTimeout(() => {
+            menuSpaces.parentElement.style.setProperty('--left', (menuSpaces.scrollLeft === 0 ? 0 : 15) + '%');
+            menuSpaces.parentElement.style.setProperty('--right', (menuSpaces.scrollLeft >= (menuSpaces.scrollWidth - menuSpaces.clientWidth - 16) ? 100 : 85) + '%');
+        }, 100);
+    
     }
 
 
@@ -307,7 +370,7 @@ class Spaces {
      * @private
     */
     init() {
-        elSpaces.addEventListener('wheel', event => {
+        $sidebar.elSpaces.addEventListener('wheel', event => {
             if (!event.ctrlKey) return;
         
             const list = [...this.list.keys()];

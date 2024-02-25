@@ -10,36 +10,31 @@
 </head>
 <body>
     <main>
+        <div class="background"></div>
         <div class="panel-hover"></div>
-        <div class="panel active">
+        <div class="sidebar panel active">
             <div class="titlebar">
-                <div class="window-buttons">
-                    <i class="ib-close"></i>
-                    <i class="ib-maximize"></i>
-                    <i class="ib-minus"></i>
-                </div>
+                <i class="btn-window ib-x"></i>
+                <i class="btn-window ib-maximize"></i>
+                <i class="btn-window ib-minus"></i>
 
-                <div class="btn menu"></div>
+                <i class="ib-show-sidebar"></i>
 
                 <div style="margin-left: auto;"></div>
 
-                <div class="btn view-btn">
-                    <i class="ib-arrow-left"></i>
-                </div>
-                <div class="btn view-btn">
-                    <i class="ib-arrow-right"></i>
-                </div>
-                <div class="btn view-btn">
-                    <i class="ib-reload"></i>
-                </div>
+                <i class="btn-view ib-chevron-left"></i>
+                <i class="btn-view ib-chevron-right"></i>
+                <i class="btn-view ib-rotate-cw"></i>
             </div>
 
-            <div class="search">
+            <div class="tab-address">
+                <i class="ib-lock"></i>
+
                 <div class="url"></div>
 
-                <ul>
-                    <i class="ib-options"></i>
-                </ul>
+                <i class="ib-link"></i>
+
+                <i class="ib-more-vertical"></i>
             </div>
 
             <div class="spaces"></div>
@@ -49,13 +44,28 @@
                     <img src="https://avatars.githubusercontent.com/u/39241501?v=4" alt="Account Image">
                 </div>
 
-                <ul class="spaces"></ul>
+                <div class="spaces">
+                    <ul></ul>
+                </div>
 
                 <i class="ib-settings" style="cursor: pointer;"></i>
             </div>
+
+            <div class="resize-line"></div>
         </div>
 
         <div class="views"></div>
+
+        <div class="search" style="display: none;">
+            <div class="textbox">
+                <label>
+                    <i class="ib-search"></i>
+                    <input type="text" placeholder="A?">
+                </label>
+                
+                <ul></ul>
+            </div>
+        </div>
     </main>
 
     <!-- SCRIPTS -->

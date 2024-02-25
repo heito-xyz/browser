@@ -1,4 +1,6 @@
 @import url('../fonts/icons/style.css');
+@import url('./components/index.css');
+@import url('./pages/index.css');
 
 
 /* ? Vars */

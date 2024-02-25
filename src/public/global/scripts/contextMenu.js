@@ -21,10 +21,11 @@
  * @typedef ContextMenuItem
  * 
  * @type { Object }
- * @property { !('button' | 'separator') } type
+ * @property { !('button' | 'separator' | 'component') } type
  * @property { !String } label
  * @property { ?String } icon
  * @property { ?String } text
+ * @property { ?HTMLElement } component
  * @property { ContextMenuItemClick } click
 */
 
@@ -71,12 +72,12 @@ class ContextMenu {
             capture: true
         });
     
-        window.addEventListener('scroll', () => {
-            this.close();
-        }, {
-            capture: true,
-            once: true
-        });
+        // window.addEventListener('scroll', () => {
+        //     this.close();
+        // }, {
+        //     capture: true,
+        //     once: true
+        // });
     }
 
 
@@ -94,8 +95,8 @@ class ContextMenu {
 
         const { clientWidth, clientHeight } = this.node;
 
-        let x = this.event.clientX,
-            y = this.event.clientY,
+        let x = this.event?.clientX || 0,
+            y = this.event?.clientY || 0,
             gap = [8, 8];
 
         if (fixed && el) {
@@ -188,6 +189,8 @@ class ContextMenu {
                         $contextMenu.close();
                     });
                 }
+            } else if (item.type === 'component' && item.component) {
+                itemElement.appendChild(item.component);
             }
     
             ul.appendChild(itemElement);

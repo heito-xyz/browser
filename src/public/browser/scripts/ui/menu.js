@@ -4,6 +4,9 @@ import { $contextMenu } from '../../../global/scripts/contextMenu.js';
 // * Libs
 import { $ipc } from '../ipc.js';
 
+// * UI
+import { $views } from './views.js';
+
 // * Items
 import { $profiles } from '../items/profiles.js';
 import { $spaces } from '../items/spaces.js';
@@ -71,7 +74,7 @@ class Menu {
                 {
                     type: 'button',
                     label: 'New folder',
-                    icon: 'folder',
+                    icon: 'folder-solid',
                     click: async () => {
                         if (!$spaces.current?.id) return;
 
@@ -89,7 +92,15 @@ class Menu {
                 {
                     type: 'button',
                     label: 'Settings',
-                    icon: 'settings'
+                    icon: 'settings',
+                    click: async () => {
+                        const { pageSettings } = await import('../pages/settings/index.js');
+
+                        $views.create({
+                            mode: 'page',
+                            page: pageSettings.page
+                        });
+                    }
                 }
             ], {
                 fixed: true,

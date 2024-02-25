@@ -60,14 +60,3 @@ $ipc.on('tabs:new', (event, tab) => {
 
     $tabs.setCurrentTab(newTab.id);
 });
-
-
-// const [newProfile] = elMain.querySelectorAll('.new');
-
-// newProfile.addEventListener('click', async event => {
-//     console.log('new profile');
-
-//     const [e, profile] = await $ipc.send('config:profiles:new', { name: Date.now().toString() });
-
-//     console.log(e, profile);
-// });

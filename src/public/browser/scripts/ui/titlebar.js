@@ -1,5 +1,10 @@
+// * Libs
 import { $ipc } from '../ipc.js';
 
+// * UI
+import { $sidebar } from './sidebar.js';
+
+// * Items
 import { $tabs } from '../items/tabs.js';
 
 class Titlebar {
@@ -11,21 +16,21 @@ class Titlebar {
 
     constructor() {
         this.initWindowButtons();
-        this.initPanelButtons();
+        this.initSidebarButtons();
         this.initViewButtons();
     }
 
 
     get windowButtons() {
         /** @type { Array<HTMLElement> } */
-        const [elClose, elMaximize, elMinimize] = this.el.querySelectorAll('.window-buttons i');
+        const [elClose, elMaximize, elMinimize] = this.el.querySelectorAll('i.btn-window');
 
         return { elClose, elMaximize, elMinimize };
     }
 
     get viewButtons() {
         /** @type { Array<HTMLElement> } */
-        const [elBack, elForward, elReload] = this.el.querySelectorAll('.view-btn');
+        const [elBack, elForward, elReload] = this.el.querySelectorAll('i.btn-view');
 
         return { elBack, elForward, elReload };
     }
@@ -116,15 +121,20 @@ class Titlebar {
     /**
      * @private
     */
-    initPanelButtons() {
-        const btnTogglePanel = this.el.querySelector('.btn.menu');
+    initSidebarButtons() {
+        const btnToggleSidebar = this.el.querySelector('i.ib-show-sidebar');
 
-        if (!btnTogglePanel) return;
+        if (!btnToggleSidebar) return;
 
-        const panel = document.querySelector('main .panel');
+        btnToggleSidebar.addEventListener('click', () => {
+            $sidebar.el.classList.toggle('active');
+        });
 
-        btnTogglePanel.addEventListener('click', () => {
-            panel.classList.toggle('active')
+
+        window.addEventListener('keydown', event => {
+            if (event.ctrlKey && event.keyCode === 66) {
+                $sidebar.el.classList.toggle('active');
+            }
         });
     }
 

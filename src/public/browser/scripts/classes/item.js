@@ -54,6 +54,9 @@ class Item {
      * @param { Object } item
      * @param { String } item.id
      * @param { String } item.name
+     * @param { Object } item.icon
+     * @param { 'image' | 'icon' } item.icon.type
+     * @param { String } item.icon.value
      * @param { Number } item.updatedAt
      * @param { Number } item.createdAt
      * 
@@ -202,6 +205,29 @@ class Item {
     }
 
     /**
+     * @param { 'image' | 'icon' } type
+     * @param { String } value
+    */
+    setIcon(type, value) {
+        if (!type || !value) return;
+        
+        const elIcon = this.node.querySelector('.item-icon');
+
+        if (!elIcon) return false;
+
+        elIcon.innerHTML = type === 'icon' ? `<i class="ib-${value}"></i>` : `<img src="${value}" alt="Folder Image">`;
+
+        $config.updateItem(this.type, this.id, {
+            icon: {
+                type,
+                value
+            }
+        });
+
+        return true;
+    }
+
+    /**
      * @param { 'space' | 'folder' } type
      * @param { String } id
      * @param { Array<string> } args
@@ -336,10 +362,6 @@ class Item {
 
         return sortable;
     }
-
-
-    // *
-    remove() {}
 }
 
 

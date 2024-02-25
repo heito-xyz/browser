@@ -3,6 +3,8 @@
  * 
  * @property { String } id
  * @property { String } name
+ * @property { 'image' | 'icon' } icon.type
+ * @property { String } icon.value
  * @property { String } url
  * @property { String } parent
  * @property { Number } updatedAt
@@ -10,120 +12,24 @@
 */
 
 
-import { $spaces } from './spaces.js';
-import { $titlebar } from '../ui/titlebar.js';
-import { $search } from '../ui/search.js';
-import { $folders } from './folders.js';
-import { $ipc } from '../ipc.js';
+// * Libs
 import { $config } from '../config.js';
-import { Item, getDataParent } from '../classes/item.js';
+import { $ipc } from '../ipc.js';
 import { $contextMenu } from '../../../global/scripts/contextMenu.js';
 
+// * Items
+import { $spaces } from './spaces.js';
+import { $folders } from './folders.js';
 
-class View {
-    /**
-     * @param { Tab } tab
-    */
-    constructor(tab) {
-        /**
-         * @readonly
-         * @type { Tab }
-        */
-        this.tab = tab;
+// * UI
+import { $titlebar } from '../ui/titlebar.js';
+import { $search } from '../ui/search.js';
+import { $views } from '../ui/views.js';
 
-        /**
-         * @readonly
-         * @type { HTMLElement }
-        */
-        this.node = this.initNode();
-    }
+// * Classes
+import { Item, getDataParent } from '../classes/item.js';
 
 
-    /**
-     * @return { Electron.WebviewTag }
-    */
-    get webview() {
-        return this.node.querySelector('webview');
-    }
-
-
-    remove() {
-        if (!this.node.isConnected) return;
-
-        this.webview.stop();
-    
-        this.node.remove();
-    }
-
-
-    /**
-     * @private
-    */
-    initViewEvents() {
-        this.webview.addEventListener('dom-ready', event => {
-            $titlebar.updateViewButtons();
-            // webview.insertCSS(`
-            // ::-webkit-scrollbar {
-            //     width: 8px;
-            // }
-            // ::-webkit-scrollbar-thumb {
-            //     border-radius: 10px;
-            // }
-            // `);
-        });
-
-        this.webview.addEventListener('page-title-updated', event => {
-            this.tab.setName(event.title);
-        });
-
-        this.webview.addEventListener('page-favicon-updated', event => {
-            // this.tab.setImage(event.favicons[0]);
-        });
-
-        this.webview.addEventListener('did-navigate-in-page', event => {
-            $config.updateItem('tab', this.tab.id, {
-                url: event.url
-            });
-        });
-
-        // this.webview.addEventListener('did-start-loading', event => {
-        //     console.log('start loading', event);
-        // });
-
-        // this.webview.addEventListener('did-stop-loading', event => {
-        //     console.log('stop loading', event);
-        // });
-    }
-
-
-    /**
-     * @private
-    */
-    initNode() {
-        const view = document.createElement('div');
-
-        view.id = String(this.tab.id);
-        view.className = 'view';
-
-        /** @type { Electron.WebviewTag } */
-        const webview = document.createElement('webview');
-
-        webview.src = this.tab.url;
-        webview.setAttribute('allowpopups', 'true');
-        webview.setAttribute('autosize', 'true');
-        webview.setAttribute('partition', `persist:profile:${this.tab.space.profile.id}`);
-
-        webview.addEventListener('DOMNodeInserted', () => {
-            setTimeout(() => {
-                this.initViewEvents();
-            }, 10);
-        });
-
-        view.appendChild(webview);
-
-        return view;
-    }
-}
 
 export class Tab extends Item {
     /**
@@ -201,6 +107,35 @@ export class Tab extends Item {
     }
 
 
+    setContextMenu() {
+        const items = [
+            {
+                type: 'button',
+                label: this.name
+            },
+        ];
+
+        if (this.view !== null) {
+            items.push({
+                type: 'separator'
+            }, {
+                type: 'button',
+                label: `Clear view`,
+                click: () => {
+                    $tabs.clearTab(this.id);
+                }
+            });
+        }
+
+        $contextMenu.set(items, {
+            orientation: 'horizontal',
+            el: this.node,
+            fixed: true,
+            position: ['top', 'right']
+        });
+    }
+
+
     /**
      * @private
     */
@@ -210,43 +145,36 @@ export class Tab extends Item {
         tab.id = `tab:${this.id}`;
         tab.draggable = true;
         tab.className = 'tab drag-item';
-        tab.innerHTML = `<img src="${this.image}" alt="Tab Image"><div class="item-name">${this.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
-        tab.innerHTML += `<ul><i class="ib-close"></i></ul>`;
-        // <i class="ib-options"></i>
-
-        const [btnClose] = tab.querySelectorAll('ul i');
+        tab.innerHTML = `
+        <div class="item-icon">
+            <img src="${this.image}" alt="Tab Image">
+        </div>
+        <div class="item-name">${this.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <ul>
+            <i class="ib-more-horizontal"></i>
+            <i class="ib-x"></i>
+        </ul>
+        `;
     
-        tab.onclick = () => {
+
+        // * Events
+        tab.addEventListener('click', () => {
             $tabs.setCurrentTab(this.id);
-        }
+        });
 
-        tab.oncontextmenu = () => {
-            const items = [
-                {
-                    type: 'button',
-                    label: this.name
-                },
-            ];
+        tab.addEventListener('contextmenu', () => {
+            this.setContextMenu();
+        });
 
-            if (this.view !== null) {
-                items.push({
-                    type: 'separator'
-                }, {
-                    type: 'button',
-                    label: `Clear view`,
-                    click: () => {
-                        $tabs.clearTab(this.id);
-                    }
-                });
-            }
 
-            $contextMenu.set(items, {
-                orientation: 'horizontal',
-                el: tab,
-                fixed: true,
-                position: ['top', 'right']
-            });
-        }
+        // * Buttons
+        const [btnMore, btnClose] = tab.querySelectorAll('ul i');
+
+        btnMore.addEventListener('click', event => {
+            event.stopPropagation();
+
+            this.setContextMenu();
+        });
 
         btnClose.addEventListener('click', event => {
             event.stopPropagation();
@@ -301,7 +229,7 @@ class Tabs {
     }
 
     /**
-     * @param { Number } tabId
+     * @param { String } tabId
     */
     setCurrentTab(tabId) {
         const tab = this.list.get(tabId);
@@ -309,10 +237,14 @@ class Tabs {
         if (!tab) return;
 
         if (tab.view === null) {
-            tab.view = new View(tab);
+            tab.view = $views.create({
+                mode: 'webview',
+                tab
+            });
         }
         
-        this.showView(tab.view);
+        $views.set(tab.view.id);
+        // this.showView(tab.view);
 
         this.currentId = tab.id;
 
@@ -329,6 +261,10 @@ class Tabs {
         classList.add('active');
 
         $search.updateUrl(tab.url.hostname);
+
+        if ($spaces.current.id !== tab.space.id) {
+            $spaces.set(tab.space.id);
+        }
     }
 
     /**
