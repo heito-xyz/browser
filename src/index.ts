@@ -9,30 +9,39 @@ import { $accounts } from './utils/accounts';
 import { $config } from './utils/config';
 
 
-function createAuthWindow() {
-    const authWindow = new WindowAuth();
-}
 
-function createBrowserWindow() {
-    const browserWindow = new WindowBrowser();
-}
+let authWindow: WindowAuth | null = null,
+    browserWindow: WindowBrowser | null = null;
 
 
 function initWindows() {
     if (!$accounts.current) {
-        createAuthWindow();
+        authWindow = new WindowAuth();
     } else {
-        createBrowserWindow();
+        browserWindow = new WindowBrowser();
     }
 
     $config
 }
 
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     console.log('Init app');
 
-    initWindows();
+    await initWindows();
+
+    if (process.argv[1] && browserWindow !== null && $accounts.current) {
+        const url = process.argv[1];
+
+        const tab = $accounts.current.newTab(url, url, [
+            'space',
+            $accounts.current.currentSpace?.id!,
+            '0',
+            'inline'
+        ]);
+
+        browserWindow.window.webContents.send('tabs:new', tab);
+    }
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) initWindows();

@@ -7,7 +7,7 @@ import url from 'url';
 
 
 export class WindowBrowser {
-    private window: BrowserWindow;
+    readonly window: BrowserWindow;
 
 
     constructor() {
@@ -55,11 +55,11 @@ export class WindowBrowser {
                 webviewTag: true,
                 nodeIntegration: true,
                 contextIsolation: false
+                // preload: path.join(__dirname, '../preloads/browser.js')
             }
         });
 
         win.setBounds({ width: 800 - 2, height: 600 -2 });
-        console.log(win.getBounds());
         
         const isDev = process.env.NODE_ENV === 'dev';
 
