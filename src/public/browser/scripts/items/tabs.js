@@ -22,7 +22,8 @@ import { $spaces } from './spaces.js';
 import { $folders } from './folders.js';
 
 // * UI
-import { $titlebar } from '../ui/titlebar.js';
+import { $sidebar } from '../ui/sidebar/index.js';
+import { $titlebar } from '../ui/sidebar/titlebar.js';
 import { $search } from '../ui/search.js';
 import { $views } from '../ui/views.js';
 
@@ -159,6 +160,8 @@ export class Tab extends Item {
 
         // * Events
         tab.addEventListener('click', () => {
+            if ($sidebar.el.classList.contains('spaces-settings')) return;
+
             $tabs.setCurrentTab(this.id);
         });
 

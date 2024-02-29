@@ -134,8 +134,6 @@ export class Folder extends Item {
 
         const header = folder.querySelector('.header');
 
-        const folderName = header.querySelector('.item-name');
-
         // ? Header Events
         header.addEventListener('click', () => {
             folder.classList.toggle('active');

@@ -4,6 +4,13 @@
         "module": "commonjs",    
         "strict": true,          
         "esModuleInterop": true,    
-        "outDir": "./build"
-    }
+        "outDir": "./build",
+        "baseUrl": ".",
+        "paths": {
+            "*": ["node_modules/*"]
+        }
+    },
+    "include": [
+        "**/*"
+    ]
 }

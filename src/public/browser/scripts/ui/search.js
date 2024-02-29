@@ -1,5 +1,6 @@
 // * UI
-import { $titlebar } from './titlebar.js';
+import { $sidebar } from './sidebar/index.js';
+import { $titlebar } from './sidebar/titlebar.js';
 
 // * Items
 import { $spaces } from '../items/spaces.js';
@@ -14,7 +15,7 @@ class Search {
      * @readonly
      * @type { HTMLElement }
     */
-    elAddress = document.querySelector('main .panel .tab-address');
+    elAddress = $sidebar.elTabAddress;
 
     /**
      * @readonly
@@ -127,16 +128,6 @@ class Search {
                     }
 
                     list.push(item);
-
-                    // const linkToSite = document.createElement('li');
-
-                    // linkToSite.className = 'active';
-                    // linkToSite.innerHTML = `
-                    // <i class="ib-link-svgrepo-com"></i>
-                    // <span>${url}</span>
-                    // `;
-
-                    // ul.appendChild(linkToSite);
                 }
 
                 list.push({
@@ -152,7 +143,6 @@ class Search {
                         list.push({
                             name: `Switch to -> ${tab.name}`,
                             icon: `image|${tab.image}`,
-                            // url: tab.url,
                             goTo: tab.id,
                             node: null
                         });

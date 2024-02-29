@@ -1,18 +1,18 @@
 // * Libs
-import { $ipc } from '../ipc.js';
+import { $ipc } from '../../ipc.js';
 
 // * UI
-import { $sidebar } from './sidebar.js';
+import { $sidebar } from './index.js';
 
 // * Items
-import { $tabs } from '../items/tabs.js';
+import { $tabs } from '../../items/tabs.js';
 
 class Titlebar {
     /**
      * @readonly
      * @type { HTMLElement }
     */
-    el = document.querySelector('main .panel .titlebar');
+    el = $sidebar.elTitlebar;
 
     constructor() {
         this.initWindowButtons();
@@ -22,6 +22,7 @@ class Titlebar {
 
 
     get windowButtons() {
+        console.log(this);
         /** @type { Array<HTMLElement> } */
         const [elClose, elMaximize, elMinimize] = this.el.querySelectorAll('i.btn-window');
 
@@ -127,14 +128,7 @@ class Titlebar {
         if (!btnToggleSidebar) return;
 
         btnToggleSidebar.addEventListener('click', () => {
-            $sidebar.el.classList.toggle('active');
-        });
-
-
-        window.addEventListener('keydown', event => {
-            if (event.ctrlKey && event.keyCode === 66) {
-                $sidebar.el.classList.toggle('active');
-            }
+            $sidebar.toggle();
         });
     }
 

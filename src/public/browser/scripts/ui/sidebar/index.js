@@ -15,7 +15,13 @@ class Sidebar {
      * @readonly
      * @type { HTMLElement }
     */
-    elSearch = this.el.querySelector('& > .search');
+    elMenu = this.el.querySelector('& > .menu');
+
+    /**
+     * @readonly
+     * @type { HTMLElement }
+    */
+    elTabAddress = this.el.querySelector('& > .tab-address');
 
     /**
      * @readonly
@@ -27,13 +33,13 @@ class Sidebar {
      * @readonly
      * @type { HTMLElement }
     */
-    elMenu = this.el.querySelector('& > div.b.menu');
+    elNavigate = this.el.querySelector('& > .navigate');
 
     /**
      * @private
      * @type { HTMLElement }
     */
-   elResizeLine = this.el.querySelector('& > .resize-line');
+    elResizeLine = this.el.querySelector('& > .resize-line');
 
 
     // *
@@ -45,6 +51,7 @@ class Sidebar {
 
 
     constructor() {
+        console.log(this);
         this.init();
     }
 
@@ -55,7 +62,7 @@ class Sidebar {
     }
 
 
-    // * 
+    // * Show and Hide
     show() {
         this._active = true;
 
@@ -116,7 +123,13 @@ class Sidebar {
      * @private
     */
     init() {
-        this.initResizeLine();
+        // this.initResizeLine();
+
+        window.addEventListener('keydown', event => {
+            if (event.ctrlKey && event.keyCode === 66) {
+                this.toggle();
+            }
+        });
     }
 }
 

@@ -1,24 +1,26 @@
 // * Global
-import { $contextMenu } from '../../../global/scripts/contextMenu.js';
+import { $contextMenu } from '../../../../global/scripts/contextMenu.js';
 
 // * Libs
-import { $ipc } from '../ipc.js';
+import { $ipc } from '../../ipc.js';
 
 // * UI
-import { $views } from './views.js';
+import { $sidebar } from './index.js';
+import { $menu } from './menu.js';
+import { $views } from '../views.js';
 
 // * Items
-import { $profiles } from '../items/profiles.js';
-import { $spaces } from '../items/spaces.js';
-import { $folders } from '../items/folders.js';
+import { $profiles } from '../../items/profiles.js';
+import { $spaces } from '../../items/spaces.js';
+import { $folders } from '../../items/folders.js';
 
 
-class Menu {
+class Navigate {
     /**
      * @readonly
      * @type { HTMLElement }
     */
-    el = document.querySelector('main .panel .b.menu');
+    el = $sidebar.elNavigate;
 
     constructor() {
         this.initButtonAccount();
@@ -38,6 +40,15 @@ class Menu {
                     type: 'button',
                     label: 'Account',
                     icon: 'stars'
+                },
+                { type: 'separator' },
+                {
+                    type: 'button',
+                    label: 'Settings',
+                    icon: 'settings',
+                    click: () => {
+                        $menu.show();
+                    }
                 }
             ], {
                 fixed: true,
@@ -87,20 +98,6 @@ class Menu {
 
                         console.log('New Folder:', folder);
                     }
-                },
-                { type: 'separator' },
-                {
-                    type: 'button',
-                    label: 'Settings',
-                    icon: 'settings',
-                    click: async () => {
-                        const { pageSettings } = await import('../pages/settings/index.js');
-
-                        $views.create({
-                            mode: 'page',
-                            page: pageSettings.page
-                        });
-                    }
                 }
             ], {
                 fixed: true,
@@ -111,4 +108,4 @@ class Menu {
     }
 }
 
-export const $menu = new Menu();
+export const $navigate = new Navigate();

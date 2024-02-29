@@ -1,20 +1,20 @@
-.views {
+main > .views {
     width: 100%;
     height: 100%;
     position: relative;
-}
 
-.views .view {
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    box-shadow: 0 0 5px -1px #000;
-    overflow: hidden;
-    -webkit-app-region: no-drag;
-}
+    .view {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 0 5px -1px #000;
+        overflow: hidden;
+        -webkit-app-region: no-drag;
 
-.views .view webview {
-    height: 100%;
-    height: calc(100% + 1px);
-    background: #ffffff;
+        webview {
+            height: 100%;
+            height: calc(100% + 1px);
+            background: #ffffff;
+        }
+    }
 }

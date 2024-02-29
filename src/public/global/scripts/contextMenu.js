@@ -8,6 +8,8 @@
  * @property { 'vertical' | 'horizontal' } orientation
  * @property { HTMLElement } el
  * @property { Array<'top' | 'right' | 'bottom' | 'left'> } position
+ * @property { Number } x
+ * @property { Number } y
 */
 
 
@@ -90,13 +92,15 @@ class ContextMenu {
             orientation = 'vertical',
             fixed = false,
             position = ['top', 'right'],
-            el
+            el,
+            x: positionX = 0,
+            y: positionY = 0
         } = this.options;
 
         const { clientWidth, clientHeight } = this.node;
 
-        let x = this.event?.clientX || 0,
-            y = this.event?.clientY || 0,
+        let x = this.event?.clientX || positionX || 0,
+            y = this.event?.clientY || positionY || 0,
             gap = [8, 8];
 
         if (fixed && el) {
@@ -147,9 +151,13 @@ class ContextMenu {
         //     x += el.clientWidth + 12;
         // }
 
-        // if (y + clientHeight > window.innerHeight) {
-        //     y = window.innerHeight - 12 - clientHeight;
-        // }
+        if (x + clientWidth > window.innerWidth) {
+            x = window.innerWidth - 12 - clientWidth;
+        }
+
+        if (y + clientHeight > window.innerHeight) {
+            y = window.innerHeight - 12 - clientHeight;
+        }
 
         return { x, y };
     }

@@ -4,10 +4,11 @@
     min-width: 128px;
     position: fixed;
     border-radius: 15px;
-    /* border: 1px solid #2d2d2d; */
-    background-color: #00000055;
+    border: 1px solid #bababa;
+    /* background-color: #00000055; */
+    background-color: #fff;
     transition: all .2s;
-    backdrop-filter: blur(5px);
+    /* backdrop-filter: blur(5px); */
     overflow: hidden;
     -webkit-app-region: no-drag;
     user-select: none;
@@ -20,12 +21,14 @@
         cursor: pointer;
         display: flex;
         padding: 8px;
+        color: #000;
         border-radius: 10px;
         align-items: center;
         transition: .2s;
 
         &:hover {
-            background-color: #00000055;
+            /* background-color: #00000055; */
+            background-color: #d1d1d1;
         }
     
         i {

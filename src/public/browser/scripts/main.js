@@ -6,8 +6,9 @@ import { $ipc } from './ipc.js';
 import { $config } from './config.js';
 
 // * UI
-import { $titlebar } from './ui/titlebar.js';
-import { $menu } from './ui/menu.js';
+import { $sidebar } from './ui/sidebar/index.js';
+import { $titlebar } from './ui/sidebar/titlebar.js';
+import { $navigate } from './ui/sidebar/navigate.js';
 
 // * Items
 import { $spaces } from './items/spaces.js';
@@ -16,22 +17,16 @@ import { $folders } from './items/folders.js';
 import { $profiles } from './items/profiles.js';
 
 
+
 // * Elements
-const
-    elMain = document.querySelector('main'),
-    elTitlebar = elMain.querySelector('.titlebar'),
-    elSearch = elMain.querySelector('.search'),
-    elSpaces = elMain.querySelector('.spaces'),
-    elMenu = elMain.querySelector('.b.menu');
+const elMain = document.querySelector('main');
 
 
-/** @type { HTMLElement} */
-const menuSpaces = elMenu.querySelector('.spaces');
-
-
+// * Inits
 $contextMenu.init(elMain);
 
 
+// * Load Items
 const spaces = await $config.getList('space');
 const profiles = await $config.getList('profile');
 const folders = await $config.getList('folder');
@@ -48,6 +43,8 @@ if ($spaces.list.size > 0) {
 }
 
 
+
+// 
 $ipc.on('tabs:new', (event, tab) => {
     if (!$spaces.current) return;
 
@@ -60,3 +57,8 @@ $ipc.on('tabs:new', (event, tab) => {
 
     $tabs.setCurrentTab(newTab.id);
 });
+
+
+window.addEventListener('keyup', event => {
+    console.log(event);
+})

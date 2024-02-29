@@ -1,12 +1,11 @@
-@import url('./panel.css');
+@import url('./background.css');
+@import url('./sidebar/index.css');
 @import url('./views.css');
-@import url('./search.css');
+@import url('./search/index.css');
 
 
 main {
     display: flex;
-    background-color: #4158D0;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
 }
 
 .new {

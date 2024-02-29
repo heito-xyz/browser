@@ -1,16 +1,53 @@
 {
   "name": "test-app",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "main": "./build/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && electron ."
+    "start": "export NODE_ENV=dev && npm run build && electron .",
+    "build": "tsc && cp -r ./src/public ./build",
+    "build:package:linux": "npm run build && electron-builder --linux",
+    "build:package:mac": "npm run build && electron-builder --mac",
+    "build:package:win": "npm run build && electron-builder --win",
+    "build:package:all": "npm run build:package:linux && npm run build:package:mac && npm run build:package:win"
   },
-  "author": "",
+  "author": {
+    "name": "heito",
+    "email": "me@heito.xyz",
+    "url": "https://heito.xyz"
+  },
   "license": "ISC",
   "description": "",
+  "build": {
+    "appId": "com.heito.browser",
+    "productName": "Browser",
+    "extraMetadata": {
+      "homepage": "./",
+      "main": "build/index.js"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    },
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "category": "public.browser.productivity",
+      "target": [
+        "zip"
+      ]
+    }
+  },
   "dependencies": {
-    "electron": "28.2.1",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "electron": "^29.0.1",
+    "electron-builder": "^24.12.0"
   }
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, autoUpdater, dialog } from 'electron';
+import { app, BrowserWindow, autoUpdater, dialog, globalShortcut } from 'electron';
 
 // * Windows
 import { WindowBrowser } from './windows/browser';
@@ -21,9 +21,9 @@ function createBrowserWindow() {
 function initWindows() {
     if (!$accounts.current) {
         createAuthWindow();
+    } else {
+        createBrowserWindow();
     }
-    
-    createBrowserWindow();
 
     $config
 }

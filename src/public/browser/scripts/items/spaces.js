@@ -29,7 +29,7 @@ import { $folders } from './folders.js';
 import { $tabs } from './tabs.js';
 
 // * UI
-import { $sidebar } from '../ui/sidebar.js';
+import { $sidebar } from '../ui/sidebar/index.js';
 import { $search } from '../ui/search.js';
 
 // * Classes
@@ -37,9 +37,10 @@ import { Item, getDataParent, getItem } from '../classes/item.js';
 
 // * Components
 import { selectIconComponent } from '../components/selectIcon.js';
+import { $config } from '../config.js';
 
 
-const menuSpaces = document.querySelector('.b.menu .spaces ul');
+const menuSpaces = $sidebar.elNavigate.querySelector('.spaces ul');
 
 
 
@@ -115,6 +116,12 @@ class Space extends Item {
     // * Context Menus
     /** @private */
     setSpaceContextMenu() {
+        const options = {
+            el: this.node.querySelector('.header'),
+            fixed: true,
+            position: ['bottom', 'right']
+        };
+
         $contextMenu.set([
             {
                 type: 'button',
@@ -146,12 +153,35 @@ class Space extends Item {
                 click: () => {
                     this.node.querySelector('.item-name').focus();
                 }
+            },
+            {
+                type: 'button',
+                label: 'Change profile',
+                click: () => {
+                    setTimeout(() => {
+                        const buttons = [];
+
+                        $profiles.list.forEach(profile => {
+                            buttons.push({
+                                type: 'button',
+                                label: profile.name + (this.profileId === profile.id ? ' (Current)' : ''),
+                                click: () => {
+                                    $config.updateItem('space', this.id, {
+                                        profileId: profile.id
+                                    });
+
+                                    this.profileId = profile.id;
+
+                                    $contextMenu.close();
+                                }
+                            });
+                        });
+
+                        $contextMenu.set(buttons, options);
+                    }, 10);
+                }
             }
-        ], {
-            el: this.node.querySelector('.header'),
-            fixed: true,
-            position: ['bottom', 'right']
-        });
+        ], options);
     }
 
     /**
@@ -191,11 +221,20 @@ class Space extends Item {
         </div>
         <div class="content">
             <div class="list main"></div>
+            <div class="clear">
+                <i class="ib-slash"></i>
+                <span>Clear</span>
+            </div>
             <div class="new-tab">
                 <i class="ib-plus"></i>
                 <span>New Tab</span>
             </div>
             <div class="list wait"></div>
+        </div>
+        <div class="options">
+            <i class="ib-move"></i>
+
+            <i class="ib-more-horizontal"></i>
         </div>
         `;
 
@@ -254,7 +293,8 @@ class Space extends Item {
             group: {
                 name: `space:${this.id}`,
                 put: () => {
-                    return !dragElement.classList.contains('folder');
+
+                    return !dragElement?.classList?.contains('folder');
                 }
             },
             draggable: '.tab',
@@ -262,10 +302,22 @@ class Space extends Item {
         }, true);
 
 
+        const clearBtn = space.querySelector('.clear');
+
+        clearBtn.addEventListener('click', () => {
+            waitContent.querySelectorAll('.tab').forEach(tab => {
+                const [_, id] = tab.id.split(':');
+
+                if (!$tabs.list.has(id)) return;
+            
+                $tabs.list.get(id).remove();
+            });
+        });
+
+
         const newTab = space.querySelector('.new-tab');
 
         newTab.onclick = () => {
-            // this.newTab('https://ya.ru');
             $search.show();
         }
 
@@ -382,7 +434,17 @@ class Spaces {
             if (currentIndex === 0 && !isDown) return;
         
             this.set(list[isDown ? currentIndex + 1 : currentIndex - 1]);
-        })
+        });
+
+        const sortable = new Sortable($sidebar.elSpaces, {
+            draggable: '.space',
+            handle: '.options .ib-move',
+            preventOnFilter: true,
+            animation: 150,
+            fallbackOnBody: true,
+            invertSwap: true,
+            direction: 'horizontal'
+        });
     }
 }
 

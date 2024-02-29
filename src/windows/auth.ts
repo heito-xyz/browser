@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import path from 'path';
 
 // * Utils
 import { $accounts } from '../utils/accounts';
@@ -46,7 +47,9 @@ export class WindowAuth {
             }
         });
 
-        win.loadFile('./src/public/auth/index.html');
+        const isDev = process.env.NODE_ENV === 'dev';
+
+        win.loadFile(path.join(__dirname, `../${isDev ? '../src/' : ''}public/browser/index.html`));
 
         return win;
     }

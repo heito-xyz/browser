@@ -1,0 +1,162 @@
+@import url('./titlebar.css');
+@import url('./menu.css');
+@import url('./tab-address.css');
+@import url('./spaces.css');
+@import url('./navigate.css');
+
+main > .sidebar {
+    --width: 215px;
+    --menu-width: 0px;
+
+    display: flex;
+    margin-right: 12px;
+    max-width: var(--width);
+    min-width: var(--width);
+    height: 100%;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all .3s;
+    user-select: none;
+
+    display: grid;
+    grid-template-areas: 'titlebar titlebar'
+                         'menu tab-address'
+                         'menu spaces'
+                         'menu navigate';
+    grid-template-columns: var(--menu-width) calc(var(--width) - var(--menu-width));
+    grid-template-rows: 24px 42px 1fr 24px;
+    row-gap: 12px;
+
+    &:not(.active) {
+        margin-right: 0;
+        max-width: 0;
+        min-width: 0;
+        -webkit-app-region: no-drag;
+        opacity: 0;
+    }
+
+    &.show-menu {
+        --menu-width: 48px;
+        --width: 263px;
+    }
+
+    &.resize {
+        transition: width 0s;
+    }
+
+
+
+    /* * ASD */
+    &.archive,
+    &.spaces-settings {
+        .tab-address {
+            display: none;
+        }
+
+        .navigate {
+            display: none;
+        }
+    }
+
+    &.archive {
+        --width: 376px;
+
+        grid-template-areas: 'titlebar titlebar'
+                             'menu menu-components'
+                             'menu menu-components'
+                             'menu menu-components';
+        grid-template-columns: 48px calc(100% - 48px);
+
+        .menu-components {
+            display: block;
+        }
+
+        div.spaces {
+            display: none;
+        }
+    }
+
+    &.spaces-settings {
+        --width: 100%;
+
+        grid-template-areas: 'titlebar titlebar'
+                             'menu spaces'
+                             'menu spaces'
+                             'menu spaces';
+
+        & + .views {
+            pointer-events: none;
+            min-width: 100%;
+            transform: translateX(-128px);
+            filter: grayscale(.8);
+        }
+
+        div.spaces {
+            max-width: calc(100% - 116px);
+            transform: none !important;
+            -webkit-app-region: no-drag;
+            overflow-y: hidden;
+
+            .space {
+                pointer-events: all;
+                padding: 12px;
+                width: 239px;
+                border-radius: 10px;
+                background-color: #00000015;
+                box-sizing: border-box;
+                opacity: 1;
+
+                &:not(:last-child) {
+                    margin-right: 12px;
+                }
+
+                .new-tab {
+                    display: none;
+                }
+
+                & > .options {
+                    display: flex;
+                }
+            }
+        }
+    }
+
+
+    .resize-line {
+        cursor: col-resize;
+        width: 3px;
+        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: calc(100% + 4px);
+        border-radius: 25px;
+        background-color: var(--text-secondary);
+        transition: .2s;
+        -webkit-app-region: no-drag;
+        opacity: 0;
+
+        &:hover,
+        &:active {
+            opacity: 1;
+        }
+    }
+}
+
+main > .sidebar-hover {
+    width: 12px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    -webkit-app-region: no-drag;
+}
+
+.sidebar-hover:hover + .sidebar,
+.sidebar:not(.active):hover {
+    margin-right: 12px;
+    max-width: var(--width);
+    min-width: var(--width);
+    opacity: 1;
+}

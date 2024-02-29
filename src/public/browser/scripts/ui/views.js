@@ -1,11 +1,14 @@
 // * Libs
 import { $config } from '../config.js';
+import { $contextMenu } from '../../../global/scripts/contextMenu.js';
 
 // * UI
-import { $titlebar } from './titlebar.js';
+import { $sidebar } from './sidebar/index.js';
+import { $titlebar } from './sidebar/titlebar.js';
 
 // * Items
-import { Tab } from '../items/tabs.js';
+import { $spaces } from '../items/spaces.js';
+import { $tabs, Tab } from '../items/tabs.js';
 
 
 class View {
@@ -40,8 +43,6 @@ class View {
             this.page = component;
         }
 
-        console.log(type, component);
-
 
         /**
          * @readonly
@@ -71,26 +72,94 @@ class View {
     }
 
 
+    initWebviewPreloadEvents(name, event) {
+        switch(name) {
+            case 'keydown': {
+                if (event.ctrlKey && event.keyCode === 66) {
+                    $sidebar.toggle();
+                }
+                break;
+            }
+            case 'click': {
+                $contextMenu.close();
+                break;
+            }
+        }
+    }
+
+
     /**
      * @private
     */
     initViewEvents() {
         if (!this.webview) return;
 
+        this.webview.addEventListener('ipc-message', event => {
+            switch(event.channel) {
+                case 'webview:event': {
+                    const { name, event: eventData } = event.args[0];
+                    this.initWebviewPreloadEvents(name, eventData);
+                    break;
+                }
+            }
+        });
+
         this.webview.addEventListener('dom-ready', event => {
             $titlebar.updateViewButtons();
-            // webview.insertCSS(`
-            // ::-webkit-scrollbar {
-            //     width: 8px;
-            // }
-            // ::-webkit-scrollbar-thumb {
-            //     border-radius: 10px;
-            // }
-            // `);
         });
 
         this.webview.addEventListener('page-title-updated', event => {
             this.tab.setName(event.title);
+        });
+
+        this.webview.addEventListener('context-menu', event => {
+            const { x, y, linkURL, srcURL, mediaType } = event.params;
+
+            console.log(event.params);
+
+            const buttons = [
+                { type: 'separator' },
+                {
+                    type: 'button',
+                    label: 'Dev tools',
+                    click: () => {
+                        this.webview.openDevTools();
+                    }
+                }
+            ];
+
+            if (linkURL) {
+                buttons.unshift({
+                    type: 'button',
+                    label: 'Open to new tab',
+                    click: () => {
+                        $spaces.current.newTab(linkURL);
+                    }
+                });
+            }
+
+            if (mediaType === 'image' && srcURL) {
+                buttons.unshift({
+                    type: 'button',
+                    label: 'Open image to new tab',
+                    click: () => {
+                        $spaces.current.newTab(srcURL);
+                    }
+                });
+            }
+
+            $contextMenu.set(buttons, {
+                x, y,
+                mode: 'center',
+                position: ['bottom', 'right']
+            });
+
+            setTimeout(() => {
+                this.webview.addEventListener('did-attach', (event) => {
+                    console.log(event);
+                    $contextMenu.close();
+                }, { once: true });
+            }, 10);
         });
 
         this.webview.addEventListener('page-favicon-updated', event => {
@@ -133,7 +202,8 @@ class View {
             webview.setAttribute('allowpopups', 'true');
             webview.setAttribute('autosize', 'true');
             webview.setAttribute('partition', `persist:profile:${this.tab.space.profile.id}`);
-            webview.setAttribute('webpreferences', 'nativeWindowOpen=true')
+            webview.setAttribute('webpreferences', 'nativeWindowOpen=true');
+            webview.setAttribute('preload', './scripts/preloads/webview.js');
 
             webview.addEventListener('DOMNodeInserted', () => {
                 setTimeout(() => {

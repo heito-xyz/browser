@@ -1,0 +1,109 @@
+.sidebar > .menu {
+    display: flex;
+    /* padding-right: 12px; */
+    width: 32px;
+    height: 100%;
+    flex-direction: column;
+    transition: all .2s;
+    box-sizing: border-box;
+    grid-area: menu;
+
+    .sidebar:not(.show-menu) & {
+        pointer-events: none;
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .line {
+        margin: auto 4px 8px 4px;
+        border-top: 1px solid var(--text-secondary);
+    }
+
+    .btn {
+        cursor: pointer;
+        display: flex;
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        align-items: center;
+        justify-content: center;
+        -webkit-app-region: no-drag;
+        transition: .2s, transform 0s;
+        transform-origin: center;
+
+        &:not(:last-of-type) {
+            margin-bottom: 12px;
+        }
+
+        &:hover {
+            color: #000;
+            background-color: #fff;
+            box-shadow: 0 0 5px -1px #000;
+        }
+
+        &:active {
+            transform: scale(.9);
+        }
+    }
+}
+
+
+.sidebar > .menu-components {
+    display: none;
+    height: 100%;
+    transition: all .2s;
+    box-sizing: border-box;
+    grid-area: menu-components;
+    -webkit-app-region: no-drag;
+
+    .archive {
+        display: flex;
+        max-height: 100%;
+        flex-direction: column;
+
+        ul {
+            overflow-x: hidden;
+
+            li {
+                cursor: pointer;
+                display: flex;
+                padding: 8px 12px;
+                border-radius: 10px;
+                align-items: center;
+                transition: .2s;
+
+                &:hover {
+                    background-color: #ffffff55;
+                }
+
+                img {
+                    margin-right: 12px;
+                }
+
+                img + div {
+                    max-width: 100%;
+                    min-width: 0;
+
+                    .name,
+                    .url {
+                        max-width: 100%;
+                        min-width: 0;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+                    
+                    .name {
+                        font-weight: 600;
+                        font-size: 13px;
+                    }
+    
+                    .url {
+                        font-size: 11px;
+                        opacity: .8;
+                    }
+                }
+            }
+        }
+    }
+}

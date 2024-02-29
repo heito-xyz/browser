@@ -1,5 +1,9 @@
-import { BrowserWindow, Menu, screen } from 'electron';
+import { BrowserWindow, Menu, screen, MenuItem } from 'electron';
 import path from 'path';
+import url from 'url';
+
+
+
 
 
 export class WindowBrowser {
@@ -10,32 +14,6 @@ export class WindowBrowser {
         this.window = this.init();
 
         this.initEvents();
-    }
-
-
-    private initWorker() {
-        // const worker = new SharedWorkerInfo(path.join(__dirname, '../workers/config.js'), {
-        //     name: 'config',
-        // });
-        // worker.on('message', event => {
-        //     console.log('message', event);
-        // });
-
-        // worker.on('error', event => {
-        //     console.log('error', event);
-        // });
-
-        // worker.on('messageerror', event => {
-        //     console.log('messageerror', event);
-        // });
-
-        // worker.on('exit', event => {
-        //     console.log('exit', event);
-        // });
-
-        // worker.on('online', () => {
-        //     console.log('online');
-        // });
     }
 
 
@@ -52,29 +30,6 @@ export class WindowBrowser {
                     this.window.minimize();
                     break;
             }
-        });
-
-        this.window.webContents.ipc.on('window:contextmenu', event => {
-            // const menu = Menu.buildFromTemplate([
-            //     {
-            //         label: 'Menu Item 1',
-            //         click: () => {
-
-            //         }
-            //     },
-            //     { type: 'separator' },
-            //     {
-            //         label: 'Menu Item 2',
-            //         type: 'checkbox',
-            //         checked: true
-            //     }
-            // ]);
-
-            // menu.popup({ window: this.window });
-        
-            // const mousePos = screen.getCursorScreenPoint();
-
-            // $contextWindow.set(mousePos.x, mousePos.y);
         });
 
         this.window.on('maximize', () => {
@@ -103,15 +58,12 @@ export class WindowBrowser {
             }
         });
 
-        win.loadFile('./src/public/browser/index.html');
+        win.setBounds({ width: 800 - 2, height: 600 -2 });
+        console.log(win.getBounds());
         
-        win.webContents
-        .executeJavaScript('({...localStorage});', true)
-        .then(localStorage => {
-            console.log(localStorage);
-        });
+        const isDev = process.env.NODE_ENV === 'dev';
 
-        this.initWorker();
+        win.loadFile(path.join(__dirname, `../${isDev ? '../src/' : ''}public/browser/index.html`));
 
         return win;
     }
