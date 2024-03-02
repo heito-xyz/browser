@@ -72,7 +72,7 @@ class Navigate {
                     label: 'New space',
                     icon: 'stars',
                     click: async () => {
-                        const [_, newSpace] = await $ipc.send('config:spaces:new', {
+                        const newSpace = await $ipc.invoke('configs:spaces:new', {
                             name: `Space - ${Date.now()}`,
                             profileId: 'global'
                         });
@@ -89,7 +89,7 @@ class Navigate {
                     click: async () => {
                         if (!$spaces.current?.id) return;
 
-                        const [_, newFolder] = await $ipc.send('config:folders:new', {
+                        const newFolder = await $ipc.invoke('configs:folders:new', {
                             name: `Folder - ${Date.now()}`,
                             parent: `space:${$spaces.current.id}:0`
                         });

@@ -51,7 +51,6 @@ class Sidebar {
 
 
     constructor() {
-        console.log(this);
         this.init();
     }
 

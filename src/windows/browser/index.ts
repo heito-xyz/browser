@@ -1,16 +1,23 @@
 import { BrowserWindow, Menu, screen, MenuItem } from 'electron';
 import path from 'path';
-import url from 'url';
+
+// * Utils
+import { join } from '../../utils/path';
+
+// * Windows
+import { TempateWindow } from '..';
 
 
 
 
 
-export class WindowBrowser {
+export class WindowBrowser extends TempateWindow {
     readonly window: BrowserWindow;
 
 
     constructor() {
+        super('browser');
+
         this.window = this.init();
 
         this.initEvents();
@@ -32,6 +39,12 @@ export class WindowBrowser {
             }
         });
 
+        this.window.webContents.ipc.on('test', (e, ...args) => {
+            console.log(e, args);
+            
+            e.reply('test', args);
+        });
+
         this.window.on('maximize', () => {
             this.window.webContents.send('window:maximize:is', true);
         });
@@ -50,20 +63,18 @@ export class WindowBrowser {
             minHeight: 240,
             frame: false,
             hasShadow: false,
+            show: false,
             transparent: true,
             webPreferences: {
                 webviewTag: true,
-                nodeIntegration: true,
-                contextIsolation: false
-                // preload: path.join(__dirname, '../preloads/browser.js')
+                sandbox: true,
+                preload: path.join(__dirname, 'preload.js')
             }
         });
-
+        
         win.setBounds({ width: 800 - 2, height: 600 -2 });
         
-        const isDev = process.env.NODE_ENV === 'dev';
-
-        win.loadFile(path.join(__dirname, `../${isDev ? '../src/' : ''}public/browser/index.html`));
+        win.loadFile(join('/public/browser/index.html'));
 
         return win;
     }

@@ -16,8 +16,6 @@ import { $tabs } from './items/tabs.js';
 import { $folders } from './items/folders.js';
 import { $profiles } from './items/profiles.js';
 
-
-
 // * Elements
 const elMain = document.querySelector('main');
 

@@ -96,7 +96,7 @@ class Space extends Item {
     async newTab(url) {
         if (!url) return;
 
-        const [e, tab] = await $ipc.send('config:tabs:new', { name: url, url, parent: `space:${this.id}:0:inline` });
+        const tab = await $ipc.invoke('configs:tabs:new', { name: url, url, parent: `space:${this.id}:0:inline` });
 
         $tabs.insert(tab);
 

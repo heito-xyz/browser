@@ -53,7 +53,7 @@ class PageSettings {
         btn.onclick = async () => {
             if (!input.value) return;
 
-            const [e, profile] = await $ipc.send('config:profiles:new', { name: input.value });
+            const profile = await $ipc.invoke('configs:profiles:new', { name: input.value });
 
             console.log('New profile:', profile);
 

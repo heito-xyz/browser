@@ -1,16 +1,21 @@
 import { BrowserWindow } from 'electron';
 import path from 'path';
 
+// * Windows
+import { $windows, TempateWindow } from '..';
+
 // * Utils
-import { $accounts } from '../utils/accounts';
-import { $config } from '../utils/config';
+import { join } from '../../utils/path';
+import { $accounts } from '../../libs/accounts';
 
 
-export class WindowAuth {
-    private window: BrowserWindow;
+export class WindowAuth extends TempateWindow {
+    readonly window: BrowserWindow;
 
 
     constructor() {
+        super('auth');
+
         this.window = this.init();
 
         this.initEvents();
@@ -27,6 +32,12 @@ export class WindowAuth {
                     this.window.close();
 
                     $accounts.saveToFile();
+
+                    const browserWindow = $windows.get('browser');
+
+                    if (!browserWindow) return;
+
+                    browserWindow.window.show();
                     break;
             }
         });
@@ -47,9 +58,7 @@ export class WindowAuth {
             }
         });
 
-        const isDev = process.env.NODE_ENV === 'dev';
-
-        win.loadFile(path.join(__dirname, `../${isDev ? '../src/' : ''}public/browser/index.html`));
+        win.loadFile(join('/public/auth/index.html'));
 
         return win;
     }

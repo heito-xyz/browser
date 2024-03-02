@@ -22,7 +22,6 @@ class Titlebar {
 
 
     get windowButtons() {
-        console.log(this);
         /** @type { Array<HTMLElement> } */
         const [elClose, elMaximize, elMinimize] = this.el.querySelectorAll('i.btn-window');
 

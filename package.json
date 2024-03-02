@@ -4,7 +4,7 @@
   "main": "./build/index.js",
   "scripts": {
     "start": "export NODE_ENV=dev && npm run build && electron .",
-    "build": "tsc && cp -r ./src/public ./build",
+    "build": "tsc",
     "build:package:linux": "npm run build && electron-builder --linux",
     "build:package:mac": "npm run build && electron-builder --mac",
     "build:package:win": "npm run build && electron-builder --win",
@@ -24,6 +24,12 @@
       "homepage": "./",
       "main": "build/index.js"
     },
+    "protocols": [{
+      "name": "electron-deep-linking",
+      "schemes": [
+        "test-app"
+      ]
+    }],
     "files": [
       "build/**/*",
       "node_modules/**/*"

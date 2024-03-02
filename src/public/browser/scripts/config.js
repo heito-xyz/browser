@@ -7,11 +7,7 @@ class Config {
      * @param { 'all' | 'archive' | 'delete' } items
      */
     getList(type, items = 'all') {
-        return new Promise(res => {
-            $ipc.send('config:items', { type, items }).then(([event, list]) => {
-                res(list);
-            });
-        });
+        return $ipc.invoke('configs:items', { type, items });
     }
 
     /**
@@ -20,14 +16,8 @@ class Config {
      * @param { any } body
     */
     updateItem(type, id, body) {
-        return new Promise(res => {
-            $ipc.send('config:items:update', {
-                type,
-                id,
-                body
-            }).then(([event, item]) => {
-                res(item);
-            });
+        return $ipc.invoke('configs:items:update', {
+            type, id, body
         });
     }
 
@@ -38,14 +28,8 @@ class Config {
      * @param { 'archive' | 'delete' } action
     */
     removeItem(type, id, action = 'archive') {
-        return new Promise(res => {
-            $ipc.send('config:items:remove', {
-                type,
-                id,
-                action
-            }).then(([event, item]) => {
-                res(item);
-            });
+        return $ipc.invoke('configs:items:remove', {
+            type, id, action
         });
     }
 }
